@@ -1,0 +1,42 @@
+<configuration>
+
+    <!-- 1. FILE Appender -->
+    <appender name="FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/app2.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp fieldName="logTime"/>
+                <logLevel/>
+                <loggerName/>
+                <message/>
+                <mdc/>
+                <!-- stackTrace 可以保留，但建议限制深度 -->
+<!--                <stackTrace>-->
+<!--                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">-->
+<!--                        <maxDepthPerThrowable>5</maxDepthPerThrowable>-->
+<!--                    </throwableConverter>-->
+<!--                </stackTrace>-->
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- 2. Async Appender 包裹 FILE -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+        <queueSize>5000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <!-- 3. Root logger 使用异步 appender -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_FILE"/>
+    </root>
+
+</configuration>
